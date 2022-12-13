@@ -1,0 +1,32 @@
+\begin{table}
+
+\caption{Initial regressions}
+\centering
+\begin{threeparttable}
+\begin{tabular}[t]{lcc}
+\midrule\midrule
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{(1)} & \multicolumn{1}{c}{(2)} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3}
+  & OLS & FE\\
+\midrule
+GDP per Capita & \num{1514.50} & \num{3691.33}\\
+ & (\num{1630.10}) & (\num{467.59})\\
+(GDP per Capita)\textasciicircum{}2 & \num{-7307297.18} & \num{-38380982.50}\\
+ & (\num{20417112.94}) & (\num{9581071.22})\\
+Clustering & Y & Y\\
+Constant & \num{0.34} & \\
+ & (\num{0.02}) & \\
+\midrule
+Num.Obs. & \num{15} & \num{15}\\
+R2 Adj. & \num{0.440} & \num{0.810}\\
+AIC & \num{-78.3} & \num{-97.8}\\
+BIC & \num{-75.5} & \num{-95.7}\\
+RMSE & \num{0.01} & \num{0.008}\\
+\midrule\midrule
+\end{tabular}
+\begin{tablenotes}
+\item \textit{Note: } 
+\item Heteroskedasticity-robust standard errors clustered at students level are reported in the parenthesis.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

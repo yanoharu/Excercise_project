@@ -6,27 +6,31 @@ main <- function(){
   postamble()
 }
 
-source("01_admin/initialize/admin.R")
-       
-       here::here('04_analyze', object_name, 'code', 'analyze.R'))
-
 preamble <- function(){
   lets('set', 'preamble')
 }
 
 
 build <- function(){
-
+   lets('build','inequality_tidy')
+   lets('build','gdp_tidy')
+   lets('build','inequality_ready')
+   lets('build','gdp_ready')
+   lets('build','master')
 }
 
 
 analyze <- function(){
-  lets('analyze', 'initial')
+  lets('analyze','gdp_tidy_check')
+  lets('analyze', 'gdp_ready_check')
+  lets('analyze','inequality_tidy_check')
+  lets('analyze','inequality_ready_check')
+  lets('analyze','kuznets_curve_study')
 }
 
 
 report <- function(){
-  lets('report', 'initial')
+  lets('report', 'checks')
 }
 
 
