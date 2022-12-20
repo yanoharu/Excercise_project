@@ -11,7 +11,7 @@ main <- function(){
 
 prep_merge <- function(inequality_data, gdp_data){
   data_output <- inequality_data %>%
-    dplyr::left_join(gdp_data,by=c("year","country"))
+    dplyr::right_join(gdp_data,by=c("year","country"))
   
   return(data_output)
 }

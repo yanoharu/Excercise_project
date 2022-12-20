@@ -1,24 +1,24 @@
 main <- function(){
   my_folder <- "gdp"
-  country_list <- c("United States","Japan")
-  raw_data <- read_raw(my_folder,country_list)
-  tidy_data <- raw_data
+  country_list <- c("United States", "Japan")
   
-  basics$save_interim(tidy_data,my_folder,extension="tidy")
+  tidy_data <- country_list %>%
+    purrr::map(read_country, my_folder) %>%
+    dplyr::bind_rows()
+    
+  basics$save_interim(tidy_data,my_folder,extension = "tidy")
 }
 
-read_raw <- function(my_folder, country_list){
-  data_list <- country_list %>% 
-    purrr::map(function(country) here::here("02_raw",my_folder,"data",paste0(country, ".csv"))) %>%
-    purrr::map(readr::read_csv)
+
+read_country <- function(country_name, my_folder){
   
-  data_output <- data_list %>%
-    dplyr::bind_rows(.id = "country_number") %>%
-    dplyr::mutate(country = country_list[as.numeric(country_number)])%>%
-    dplyr::select(-country_number)
-  
-  return(data_output)
+    file_name <- paste0(country_name, ".csv")
+    output_data <- read.csv(here::here("02_raw", my_folder, "data", file_name)) %>%
+      dplyr::mutate(country = country_name, .before = year)
+    
+    return(output_data)
 }
+      
 
 box::use(`functions`/basics)
 main()

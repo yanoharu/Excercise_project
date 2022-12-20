@@ -17,8 +17,8 @@ main <- function(){
   
 list_folders <- function(){
   lists <- c("gdp_tidy",
-             "gdp_ready",
              "inequality_tidy",
+             "gdp_ready",
              "inequality_ready")
   return(lists)
 }
