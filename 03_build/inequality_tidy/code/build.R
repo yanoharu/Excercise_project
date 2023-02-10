@@ -34,7 +34,8 @@ prep_long_table <- function(data_input){
     dplyr::filter(country %in% c("USA", "JPN"))
   
   data_output <- long_data %>%
-    dplyr::mutate(gini = round(as.numeric(gini), digits = 4))
+    dplyr::mutate(gini = round(as.numeric(gini), digits = 4))%>%
+    dplyr::mutate(year = as.numeric(year))
     
   return(data_output)
 }

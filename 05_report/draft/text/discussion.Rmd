@@ -1,0 +1,132 @@
+---
+title: 'レポート：クズネッツ曲線'
+author: "矢野遥人（1931248）"
+date: 
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+### 問題
+　経済学者サイモン・クズネッツの仮説「経済成長と共に、格差は最初は拡大するが、後に解消していく」は現実に成り立っているか
+
+### 欠損値、異常値
+・欠損値は欠損していない前後の時期のデータを用いて線形補完した。
+
+・1995年の日本の一人当たりのGDPが1990年から大きく伸びているが、1990年以前から一人当たりのGDPは成長しているため、異常値ではない。しかし、1995年以降、日本の一人当たりのGDPは減少傾向にあり、構造的な変化があったかもしれない。
+
+
+### 記述統計
+ 本レポートではアメリカと日本のジニ係数、GDP、人口のデータを用いる。格差の指標としてジニ係数（gini）、経済成長の指標として一人当たりのGDP(gdp_ per_capita)を用いる。
+```{r, echo = FALSE, results="asis"}
+
+folder_name = "kuznets_curve_study"
+
+my_path_table = here::here("04_analyze",folder_name,"table")
+
+table <- list.files(path = my_path_table, pattern = "html", full.names = TRUE)
+table <- table[2]
+print_either <- function(file_name){
+  htmltools::includeHTML(file_name)
+}
+
+
+purrr::map(table,print_either)
+
+
+```
+
+・アメリカのジニ係数は日本のジニ係数に比べて標準偏差が大きいので、データ期間内で大きく変動したことが分かる。
+
+・アメリカの一人当たりのGDPは、最小値と最大値の振れ幅が日本のより大きい
+
+
+## 分析
+#### ジニ係数と一人当たりGDPの相関（アメリカ、日本）
+
+※グラフの色が何故か落ちて白黒になってしまってます
+```{r, echo = FALSE, results="asis"}
+main <- function(){
+  list_folders() -> lists
+  print_lists(lists)
+  
+}
+  
+list_folders <- function(){
+  lists <- c("kuznets_curve")
+  return(lists)
+}
+
+print_lists <- function(lists_input){
+  purrr::map(lists_input, print_each)
+}
+
+print_each <- function(folder_name0){
+  folder_name <- paste0(folder_name0, "_study")
+  
+ # my_path_table = here::here("04_analyze",folder_name,"table")
+  #table_lists <- list.files(path = my_path_table, pattern = "html", full.names = TRUE)
+  
+  my_path_figure = here::here("04_analyze",folder_name,"figure")
+  figure_lists <- list.files(path = my_path_figure, pattern = "png", full.names = TRUE)
+  
+  #all_lists = cbind(figure_lists, table_lists)
+  all_lists = figure_lists
+  
+  purrr::map(all_lists, print_either)
+}
+
+print_either <- function(file_name){
+  file_extension <- tools::file_ext(file_name)
+  
+  if (file_extension == "html"){
+    htmltools::includeHTML(file_name)
+  } else if (file_extension == "png") {
+    htmltools::img(src = knitr::image_uri(file_name))
+  }
+}
+main()
+```
+
+・アメリカのデータからは、ジニ係数、一人当たりのGDP、年の全てにおいて正の相関が見てとれる。
+
+・日本のデータは、アメリカのデータほどのはっきりしたトレンドは見られない。
+
+
+#### 回帰分析
+
+one_FEは国の個体効果モデルであり、one_FEは時間と国の固定効果モデルである。
+```{r, echo = FALSE, results="asis"}
+folder_name = "kuznets_curve_study"
+
+my_path_table = here::here("04_analyze",folder_name,"table")
+
+table <- list.files(path = my_path_table, pattern = "html", full.names = TRUE)
+table <- table[1]
+print_either <- function(file_name){
+  htmltools::includeHTML(file_name)
+}
+
+purrr::map(table,print_either)
+
+```
+
+　国の個別効果を考慮したモデルと国と時間の固定効果を考慮したモデルでは、一人当たりのGDPの係数が逆である。マクロ経済変数であるGini係数が時間と関係していないというのは考えにくいため、時間と国の固定効果モデルが妥当であると思われる。
+
+　時間と国の固定効果モデルの係数を見てみると、一人当たりのGDPの係数が正である。この回帰分析結果からは、経済成長と共に格差が拡大することが示唆される。
+
+### 参考文献
+World development Indicator|Data Bank
+（アメリカのジニ係数のデータ）
+ URL：https://databank.worldbank.org/reports.aspx?source=2&series=SI.POV.GINI&country=USA
+（日本のジニ係数のデータ）
+URL：https://databank.worldbank.org/reports.aspx?source=2&series=SI.POV.GINI&country=USA
+
+Global Comparative Data|Macro Trends (GDPと人口のデータ）
+https://www.macrotrends.net/countries/topic-overview
+
+固定効果モデルについて
+https://michihito-ando.github.io/econome_ml_with_R/08_Fixed_Effects.html
+
+

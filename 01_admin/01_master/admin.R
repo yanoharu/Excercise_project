@@ -22,7 +22,7 @@ build <- function(){
 
 analyze <- function(){
   lets('analyze','gdp_tidy_check')
-  lets('analyze', 'gdp_ready_check')
+  lets('analyze','gdp_ready_check')
   lets('analyze','inequality_tidy_check')
   lets('analyze','inequality_ready_check')
   lets('analyze','kuznets_curve_study')

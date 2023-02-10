@@ -8,8 +8,7 @@ main <- function(){
                            var_vector,
                            my_folder)
   
-  var_quantitative <- c("year",
-                        "gini")
+  var_quantitative <- c("year","gini")
   
   checks$check_quantitative(my_data,
                             var_quantitative,

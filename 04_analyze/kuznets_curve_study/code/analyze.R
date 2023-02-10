@@ -5,12 +5,18 @@ main <- function(){
   main_varnames <- c('gdp_per_capita' = 'GDP per Capita',
                      'I(gdp_per_capita^2)'='(GDP per Capita)^2',
                      '(Intercept)' = 'Constant')
+
+  data_master %>%
+    run_descriptive_statistics(
+      my_file_name = "statistics_table",
+      my_folder = my_folder
+    )
   
   data_master %>%
     run_regressions() %>% 
     format_and_save_table(
-      my_file = "initial_reg",
-      my_title = "Initial regressions",
+      my_file = "regression",
+      my_title = "regressions",
       my_varnames = main_varnames,
       my_folder = my_folder)
   
@@ -22,18 +28,34 @@ main <- function(){
     basics$save_my_plot(var_name = "correlation_gini_GDPperCapita", folder = my_folder)
 }
 
+run_descriptive_statistics <- function(data_input, my_file_name, my_folder){
+  require(table1)
+  require(flextable)
+  my_file_html0 <- paste0(my_file_name, ".html")  
+  my_file_html <- here::here("04_analyze", my_folder, "table", my_file_html0)
+  table1::label(data_input$year) <- "Year"
+  table1::label(data_input$gini) <- "Gini"
+  table1::label(data_input$population) <- "Population"
+  table1::label(data_input$GDP) <- "GDP"
+  table1::label(data_input$gdp_per_capita) <- "GDP per Capita"
+  plot_output <- table1::table1(~year + gini + population + GDP + gdp_per_capita | country,
+                                data = data_input) 
+  save_as_html("descriptive statistics table" = flextable(as.data.frame(plot_output)),
+               path = my_file_html,
+               title = "descriptive statistics table")
+}
 
 
 run_regressions <- function(data_input){
   estimates_list <- list(
-    "OLS" = estimatr::lm_robust(
-      gini ~ gdp_per_capita+I(gdp_per_capita^2),
+    "one_FE" = estimatr::lm_robust(
+      gini ~ gdp_per_capita + I(gdp_per_capita^2),
       clusters = country, se_type = "stata",
       data = data_input
     ),
-    "FE" = estimatr::lm_robust(
-      gini ~ gdp_per_capita+I(gdp_per_capita^2),
-      fixed_effects = ~ country, clusters = country, se_type = "stata",
+    "two_FE" = estimatr::lm_robust(
+      gini ~ gdp_per_capita + I(gdp_per_capita^2),
+      fixed_effects = ~ country + year, clusters = country, se_type = "stata",
       data = data_input
     )
   )
@@ -50,7 +72,7 @@ format_and_save_table <- function(estimates_lists, my_file_name,
   my_content <- "^R2$|Std.Errors"
   
   my_fmt <- "%.2f"
-  my_rows <- tibble::tribble(~term,  ~'OLS',  ~'FE',
+  my_rows <- tibble::tribble(~term,  ~'one_FE',  ~'two_FE',
                              'Clustering', 'Y', 'Y')
   attr(my_rows, 'position') <- 5
   
@@ -73,7 +95,7 @@ format_and_save_table <- function(estimates_lists, my_file_name,
 format_table <- function(table_input){
   table_output <- table_input %>% 
     kableExtra::kable_styling(bootstrap_options = c("hover", "condensed")) %>% 
-    kableExtra::add_header_above(c(" " = 1, "(1)" = 1, "(2)" = 1)) %>%
+    kableExtra::add_header_above(c(" "= 0, "(1)" = 1, "(2)" = 2)) %>%
     kableExtra::kable_classic_2(full_width = F) %>% 
     kableExtra::footnote(general = "Heteroskedasticity-robust standard errors clustered at students level are reported in the parenthesis.",
                          threeparttable = T) 
@@ -95,7 +117,7 @@ lay_kuznets_curve <- function(data_input, x_var, y_var, group_var){
   group_var <- rlang::enquo(group_var)
   
   require(ggplot2)
-  
+  require(ggrepel)
   plot_output <- ggplot(
     data = data_input,
     mapping = aes(x = !!x_var,
@@ -107,18 +129,20 @@ lay_kuznets_curve <- function(data_input, x_var, y_var, group_var){
                size = 4) +
     geom_line(mapping = aes(color = country,
                             group = country),
-              size = 1)+
+              size = 1) +
     scale_color_manual(values = c("United States"="orange",
-                                  "Japan"="dark blue"))+
+                                  "Japan"="darkblue"))+
     labs(title = "Gini coefficient and GDP per capita of US and Japan",
-         #subtitle = "Based on Peanuts Data",
          x = "GDP per Capita",
          y = "Gini Coefficient",
          caption = "Source  Gini:data bank/GDP per Capita: macrotrends")+
-    theme(legend.position = "left")
+    theme(legend.position = "left") +
+    geom_label_repel(aes(label = year))
   
   return(plot_output)
 }
+
+
 
 box::use(`functions`/basics)
 main()
